@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, FlatList, Image, ScrollView, StyleSheet, Text, View, useWindowDimensions } from "react-native";
 import SearchBar from "@/components/SearchBar";
 import { logo } from "@/constants/image";
 import React from "react";
@@ -9,6 +9,16 @@ import MovieCard from "@/components/MovieCard";
 
 export default function Index() {
   const router = useRouter();
+  const { width } = useWindowDimensions(); // Get screen width
+
+  // Constants for responsive grid
+  const ITEM_MIN_WIDTH = 170; // Minimum width per movie card
+  const SPACING = 15; // Space between columns
+
+  let numColumns = Math.floor(width / (ITEM_MIN_WIDTH + SPACING));
+  numColumns = Math.max(numColumns, 3); // ✅ Ensure at least 3 columns
+
+  const itemWidth = width / numColumns - SPACING; // Adjust width dynamically
 
   const { data: movies, loading: moviesLoading, error: moviesError } = useFetch(() =>
     fetchMovies({ query: "" })
@@ -33,11 +43,11 @@ export default function Index() {
 
           <FlatList
             data={movies}
-            renderItem={({ item }) => <MovieCard {...item} />}
+            renderItem={({ item }) => <MovieCard {...item} width={itemWidth} />} // Pass dynamic width
             keyExtractor={(item) => item.id.toString()}
-            numColumns={2}
-            columnWrapperStyle={styles.columnWrapper}
-            scrollEnabled={false} 
+            numColumns={numColumns} // ✅ Always at least 3 columns
+            columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined}
+            scrollEnabled={false}
           />
         </View>
       )}
@@ -84,12 +94,11 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#FFF",
+    color: "#333",
     marginBottom: 10,
   },
   columnWrapper: {
-    justifyContent: "flex-start",
-    gap: 15,
+    justifyContent: "space-between", // ✅ Ensures even spacing
     paddingRight: 5,
     marginBottom: 10,
   },

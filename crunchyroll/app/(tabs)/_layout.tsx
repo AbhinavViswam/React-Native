@@ -19,6 +19,7 @@ const TabLayout = () => {
                 tabBarShowLabel: false,
                 headerShown: false,
                 tabBarStyle: styles.tabBar,
+                tabBarHideOnKeyboard:true,
             }}
         >
             <Tabs.Screen

@@ -1,4 +1,4 @@
-import { View, Text, FlatList, StyleSheet, Image, ActivityIndicator } from 'react-native'
+import { View, Text, FlatList, StyleSheet, Image, ActivityIndicator, useWindowDimensions } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import MovieCard from '@/components/MovieCard'
 import useFetch from '@/services/useFetch'
@@ -8,6 +8,10 @@ import SearchBar from '@/components/SearchBar'
 
 const Search = () => {
   const [searchQuery, setSearchQuery] = useState("")
+  const { width } = useWindowDimensions(); // Get screen width dynamically
+
+  // Dynamically adjust number of columns based on screen width
+  const numColumns = width > 600 ? 3 : width > 400 ? 2 : 1;
 
   const { data: movies, loading: moviesLoading, error: moviesError, refetch: loadMovies, reset } = useFetch(() =>
     fetchMovies({ query: searchQuery })
@@ -29,8 +33,8 @@ const Search = () => {
       <FlatList
         data={movies}
         renderItem={({ item }) => <MovieCard {...item} />}
-        numColumns={2}
-        columnWrapperStyle={styles.columnWrapper}
+        numColumns={numColumns} // Dynamically set number of columns
+        columnWrapperStyle={numColumns > 1 ? styles.columnWrapper : undefined} // Avoid error if numColumns is 1
         ListHeaderComponent={
           <>
             <View style={styles.header}>
